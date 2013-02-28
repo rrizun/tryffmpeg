@@ -1,0 +1,5 @@
+AM_CPPFLAGS = $(MODULES_CFLAGS)
+LDADD = $(MODULES_LIBS)
+bin_PROGRAMS = main
+main_SOURCES = main.cpp
+main_LDADD = $(LDADD)
