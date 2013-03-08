@@ -31,6 +31,9 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    AVStream *stream = fmt_ctx->streams[0];
+    printf("nb_frames=%lu\n", stream->nb_frames);
+
     /* dump input information to stderr */
     av_dump_format(fmt_ctx, 0, src_filename, 0);
 
@@ -40,15 +43,29 @@ int main(int argc, char **argv) {
 
 //    /* read frames from the file */
     int count = 0;
-    int total = 0;
+    int total_pkt_size = 0;
+    uint64_t pts = 0;
+//    int stream_index = 0;
     while (av_read_frame(fmt_ctx, &pkt) >= 0) {
-    	total += pkt.size;
-    	printf("%ld ", pkt.pos);
+    	total_pkt_size += pkt.size;
+//    	printf("%ld ", pkt.pos);
 //        decode_packet(&got_frame, 0);
+
+    	if (pkt.stream_index==0) // 0 is the video stream
+    		pts = pkt.pts;
+
         av_free_packet(&pkt);
     }
 
-	printf("total=%d\n", total);
+
+    printf("\n");
+
+	AVRational rational = fmt_ctx->streams[0]->time_base;
+
+//	printf("last_pts=%lu\n", pts);
+	printf("last_pts=%lum%lus\n", (pts/rational.den)/60, (pts/rational.den)%60);
+
+	printf("total_pkt_size=%d\n", total_pkt_size);
 
 	return 0;
 }
